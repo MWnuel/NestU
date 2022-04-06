@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+     <!-- Latest compiled and minified CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Latest compiled JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Dashboard</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row flex-nowrap">
+        <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                <h1 class="logo">NestU v0.1</h1>
+                <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard_view' %}" class="nav-link align-middle px-0">
+                            <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'details_view' %}" class="nav-link px-0 align-middle">
+                            <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Details</span>
+                        </a>
+                    </li>
+                    <li class="nav-item has- px-0 align-middle">
+                        <a class="nav-link bg-transparent" href="#">Tools</a>
+		                <ul>
+                            <li>
+                                <form action="{% url 'dashboard_view' %}" method="post">
+                                    {% csrf_token %}
+                                    <input class="btn btn-primary btn-sm" type='submit' name="speedtest" value="Perform Speedtest">
+                                </form>
+                            </li>
+                            <li>
+                                <form class="pt-2" method="post" action="{% url "dashboard_view" %}">
+                                    {% csrf_token %}
+                                    <input class="btn btn-primary btn-sm" type='submit' name="csv" value="Export CSV File">
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="container w-75 p-4">
+        <div class="row">
+            {% for measurment in measurements %}
+                {% if forloop.last %}
+                        <!-- Download -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                                Download-Speed
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800"> {{measurment.download}} Mbit/s</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Upload Speed
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{measurment.upload}} Mbit/s</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Latency -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Latency
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{measurment.latency}} ms</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                Measurement-Date
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{measurment.test_time}}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                {% endif %}
+            {% endfor %}
+                <!-- displaying the chart -->
+                <!-- you can also play around with the width and height to increase or decrease the chart size -->
+            </div>
+            <div class="row">
+                <canvas id="myChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.css"/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script>
+ // jquery function
+                $(document).ready(function(){
+                        const ctx = document.getElementById('myChart').getContext('2d');
+                        const myChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: [{%for data in measurements%}'{{data.test_time}}',{%endfor%}], //loop through queryset,
+                                datasets: [
+                                            {
+                                              label: 'Download',
+                                              data: [{%for data in measurements%}'{{data.download}}',{%endfor%}],
+                                              borderColor: "#D0021B",
+                                              backgroundColor: "#D0021B",
+                                              yAxisID: 'y',
+                                            },
+                                            {
+                                              label: 'Upload',
+                                              data: [{%for data in measurements%}'{{data.upload}}',{%endfor%}],
+                                              borderColor: "#4A90E2",
+                                              backgroundColor: "#4A90E2",
+                                              yAxisID: 'y',
+                                            },
+                                            {
+                                              label: 'Latency',
+                                              data: [{%for data in measurements%}'{{data.latency}}',{%endfor%}],
+                                              borderColor: "#F8E71C",
+                                              backgroundColor: "#F8E71C",
+                                              fill: true,
+                                              yAxisID: 'y2',
+                                            }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: "top",
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Internet Speed"
+                                },
+                                scales: {
+                                  y: {
+                                    type: "linear",
+                                    position: "left",
+                                    ticks: {callback: function(value, index, ticks) {return value + " Mbit/s";}}
+                                  },
+                                   y2: {
+                                    type: "linear",
+                                    position: "right",
+                                    ticks: {callback: function(value, index, ticks) {return value + " ms";}}
+                                  },
+                                },
+                            }
+                });
+                    });
+</script>
+</body>
+
+</html>
